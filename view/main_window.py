@@ -46,7 +46,7 @@ class MainWindow:
         return
 
     def _configure_window(self):
-        self._window.title("Syntax text analysis")
+        self._window.title("Semantic analysis")
 
         self._left_frame_buttons.grid(row=0, column=0, rowspan=2, sticky="ns")
         self._button_open.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
@@ -65,7 +65,7 @@ class MainWindow:
 
     def open_file(self):
         filepath = askopenfilename(
-            filetypes=[("Текстовый документ", "*.json")]
+            filetypes=[("JSON document", "*.json")]
         )
         if not filepath:
             return
@@ -80,7 +80,8 @@ class MainWindow:
     @staticmethod
     def about():
         tk.messagebox.showinfo("Help",
-                               "To start, open text file or enter your sentence.\nEnglish language.\nSemantic parsed tree will generated.")
+                               "To start open a text file or enter your sentence.\nEnglish language.\nSemantic parse "
+                               "tree will be generated.")
         return
 
     def save_json(self):
@@ -96,9 +97,9 @@ class MainWindow:
             data = {"syn": self.get_synonims(word), "ant": self.get_synonims(word), "hypon": self.get_hyponyms(word),
                     "hyper": self.get_hypernyms(word)}
 
-            items.append({"name" : word, "data" : data})
+            items.append({"name": word, "data": data})
 
-        content = {"message" : self._text_field.get(1.0, END), "items" : items}
+        content = {"message": self._text_field.get(1.0, END), "items": items}
         json_dump = json.dumps(content)
 
         f.write(json_dump)
