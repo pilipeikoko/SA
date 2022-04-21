@@ -65,13 +65,16 @@ class MainWindow:
 
     def open_file(self):
         filepath = askopenfilename(
-            filetypes=[("Текстовый документ", "*.txt")]
+            filetypes=[("Текстовый документ", "*.json")]
         )
         if not filepath:
             return
-        file = open(filepath)
-        file_content = file.read()
-        self._text_field.insert("1.0", file_content)
+
+        with open(filepath, 'r') as j:
+            contents = json.loads(j.read())
+            self._text_field.insert("1.0", contents["message"])
+            self.draw_semantic_tree()
+
         return
 
     @staticmethod
@@ -95,7 +98,8 @@ class MainWindow:
 
             items.append({"name" : word, "data" : data})
 
-        json_dump = json.dumps(items)
+        content = {"message" : self._text_field.get(1.0, END), "items" : items}
+        json_dump = json.dumps(content)
 
         f.write(json_dump)
 
