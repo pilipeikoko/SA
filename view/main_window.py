@@ -1,9 +1,10 @@
+import json
 import os
 import time
 import tkinter
 import tkinter as tk
 from tkinter import END
-from tkinter.filedialog import askopenfilename, asksaveasfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename, asksaveasfile
 
 import nltk
 import spacy
@@ -31,7 +32,7 @@ class MainWindow:
         self._dictionary_documentation_label = tk.Label(self._window, text="History")
         self._button_open = tk.Button(self._left_frame_buttons, text="Open file", command=self.open_file)
         self._save_button = tk.Button(self._left_frame_buttons, text="   Save tree   ",
-                                      command=self.savePicture)
+                                      command=self.save_json)
 
         self._button_help = tk.Button(self._left_frame_buttons, text="   Help   ",
                                       command=self.about)
@@ -79,17 +80,24 @@ class MainWindow:
                                "To start, open text file or enter your sentence.\nEnglish language.\nSemantic parsed tree will generated.")
         return
 
-    def savePicture(self):
-        #f = asksaveasfile(mode='wb', defaultextension=".png")
-        filename = asksaveasfilename(initialfile='Untitled.png', defaultextension=".png",
-                                     filetypes=[("All Files", "*.*"), ("Portable Graphics Format", "*.png")])
-        self._canvas.print_to_file('output.ps')
+    def save_json(self):
+        f = asksaveasfile(defaultextension=".json")
 
-        psimage = Image.open('output.ps')
+        doc = nltk.word_tokenize(self._text_field.get(1.0, END))
+        data_set: dict
 
-        psimage.save(filename)
+        items = []
 
-        os.system('convert output.ps output.png')
+        for word in doc:
+            print(word)
+            data = {"syn": self.get_synonims(word), "ant": self.get_synonims(word), "hypon": self.get_hyponyms(word),
+                    "hyper": self.get_hypernyms(word)}
+
+            items.append({"name" : word, "data" : data})
+
+        json_dump = json.dumps(items)
+
+        f.write(json_dump)
 
         return
 
@@ -168,3 +176,33 @@ class MainWindow:
         result += '))'
         print('get word semantic', time.time() - start)
         return result
+
+    def get_synonims(self, word: str):
+        synonyms = []
+        syn_app = synonyms.append
+        word = wn.synsets(word)
+        for synset in word:
+            for lemma in synset.lemmas():
+                synonyms.append(lemma.name())
+
+        return synonyms
+
+    def get_hyponyms(self, word):
+        hyponims = []
+        he_app = hyponims.append
+        word = wn.synsets(word)
+
+        for hyponym in word[0].hyponyms():
+            he_app(hyponym.name())
+
+        return hyponims
+
+    def get_hypernyms(self, word):
+        hypernyms = []
+        he_app = hypernyms.append
+        word = wn.synsets(word)
+
+        for hyponym in word[0].hypernyms():
+            he_app(hyponym.name())
+
+        return hypernyms
