@@ -122,6 +122,7 @@ class MainWindow:
                 doc = nltk.word_tokenize(sent)
                 result_sent = '(SENT '
                 for word in doc:
+                    print("Processing word " + word)
                     result_sent += self.get_word_semantic(word)
                 result_sent += ')'
                 result += result_sent
